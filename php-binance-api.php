@@ -947,8 +947,8 @@ class API
         }
         curl_close($curl);
         $json = json_decode($output, true);
-        if (isset($json['code']) && isset($json['msg'])) {
-            throw new \Exception('API error: ' . $json['code'] . ': ' . $json['msg'], $json['code']);
+        if (isset($json['msg'])) {
+            throw new \Exception('API error: ' . $json['msg']);
         }
         $this->transfered += strlen($output);
         $this->requestCount++;
