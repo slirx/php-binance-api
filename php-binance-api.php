@@ -60,6 +60,7 @@ class API
      * 1 argument - file to load config from
      * 2 arguments - api key and api secret
      *
+     * @throws \Exception
      * @return null
      */
     public function __construct()
@@ -81,14 +82,14 @@ class API
                 $this->api_secret = $param[1];
                 break;
             default:
-                echo 'Please see valid constructors here: https://github.com/jaggedsoft/php-binance-api/blob/master/examples/constructor.php';
+                throw new \Exception('Please see valid constructors here: https://github.com/jaggedsoft/php-binance-api/blob/master/examples/constructor.php');
         }
     }
 
     /**
      * magic get for private and protected members
      *
-     * @param $file string the name of the property to return
+     * @param string $member string the name of the property to return
      * @return null
      */
     public function __get(string $member)
@@ -116,7 +117,9 @@ class API
      * ~/jaggedsoft/php-binance-api.json
      *
      * @param $file string file location
+     *
      * @return null
+     * @throws \Exception
      */
     private function setupApiConfigFromFile(string $file = null)
     {
@@ -126,9 +129,7 @@ class API
             return;
         }
         if (file_exists($file) === false) {
-            echo "Unable to load config from: " . $file . PHP_EOL;
-            echo "Detected no API KEY or SECRET, all signed requests will fail" . PHP_EOL;
-            return;
+            throw new \Exception("Unable to load config from: " . $file . ". Detected no API KEY or SECRET, all signed requests will fail");
         }
         $contents = json_decode(file_get_contents($file), true);
         $this->api_key = isset($contents['api-key']) ? $contents['api-key'] : "";
@@ -141,7 +142,9 @@ class API
      * ~/jaggedsoft/php-binance-api.json
      *
      * @param $file string file location
+     *
      * @return null
+     * @throws \Exception
      */
     private function setupCurlOptsFromFile(string $file = null)
     {
@@ -151,9 +154,7 @@ class API
             return;
         }
         if (file_exists($file) === false) {
-            echo "Unable to load config from: " . $file . PHP_EOL;
-            echo "No curl options will be set" . PHP_EOL;
-            return;
+            throw new \Exception("Unable to load config from: " . $file . ". No curl options will be set");
         }
         $contents = json_decode(file_get_contents($file), true);
         $this->curlOpts = isset($contents['curlOpts']) && is_array($contents['curlOpts']) ? $contents['curlOpts'] : [];
@@ -165,6 +166,7 @@ class API
      * ~/jaggedsoft/php-binance-api.json
      *
      * @return null
+     * @throws \Exception
      */
     private function setupProxyConfigFromFile(string $file = null)
     {
@@ -174,9 +176,7 @@ class API
             return;
         }
         if (file_exists($file) === false) {
-            echo "Unable to load config from: " . $file . PHP_EOL;
-            echo "No proxies will be used " . PHP_EOL;
-            return;
+            throw new \Exception("Unable to load config from: " . $file . ". No proxies will be used");
         }
         $contents = json_decode(file_get_contents($file), true);
         if (isset($contents['proto']) === false) {
@@ -217,12 +217,14 @@ class API
      * $price = 0.0005;
      * $order = $api->buy("BNBBTC", $quantity, $price);
      *
-     * @param $symbol string the currency symbol
+     * @param $symbol   string the currency symbol
      * @param $quantity string the quantity required
-     * @param $price string price per unit you want to spend
-     * @param $type string type of order
-     * @param $flags array addtional options for order type
+     * @param $price    string price per unit you want to spend
+     * @param $type     string type of order
+     * @param $flags    array addtional options for order type
+     *
      * @return array with error message or the order details
+     * @throws \Exception
      */
     public function buy(string $symbol, $quantity, $price, string $type = "LIMIT", array $flags = [])
     {
@@ -234,12 +236,14 @@ class API
      *
      * @see buy()
      *
-     * @param $symbol string the currency symbol
+     * @param $symbol   string the currency symbol
      * @param $quantity string the quantity required
-     * @param $price string price per unit you want to spend
-     * @param $type string config
-     * @param $flags array config
+     * @param $price    string price per unit you want to spend
+     * @param $type     string config
+     * @param $flags    array config
+     *
      * @return array with error message or empty or the order details
+     * @throws \Exception
      */
     public function buyTest(string $symbol, $quantity, $price, string $type = "LIMIT", array $flags = [])
     {
@@ -264,12 +268,14 @@ class API
      * $price = 0.0005;
      * $order = $api->sell("BNBBTC", $quantity, $price);
      *
-     * @param $symbol string the currency symbol
+     * @param $symbol   string the currency symbol
      * @param $quantity string the quantity required
-     * @param $price string price per unit you want to spend
-     * @param $type string type of order
-     * @param $flags array addtional options for order type
+     * @param $price    string price per unit you want to spend
+     * @param $type     string type of order
+     * @param $flags    array addtional options for order type
+     *
      * @return array with error message or the order details
+     * @throws \Exception
      */
     public function sell(string $symbol, $quantity, $price, string $type = "LIMIT", array $flags = [])
     {
@@ -281,12 +287,14 @@ class API
      *
      * @see sell()
      *
-     * @param $symbol string the currency symbol
+     * @param $symbol   string the currency symbol
      * @param $quantity string the quantity required
-     * @param $price string price per unit you want to spend
-     * @param $type array config
-     * @param $flags array config
+     * @param $price    string price per unit you want to spend
+     * @param $type     array config
+     * @param $flags    array config
+     *
      * @return array with error message or empty or the order details
+     * @throws \Exception
      */
     public function sellTest(string $symbol, $quantity, $price, string $type = "LIMIT", array $flags = [])
     {
@@ -299,10 +307,12 @@ class API
      * $quantity = 1;
      * $order = $api->marketBuy("BNBBTC", $quantity);
      *
-     * @param $symbol string the currency symbol
+     * @param $symbol   string the currency symbol
      * @param $quantity string the quantity required
-     * @param $flags array addtional options for order type
+     * @param $flags    array addtional options for order type
+     *
      * @return array with error message or the order details
+     * @throws \Exception
      */
     public function marketBuy(string $symbol, $quantity, array $flags = [])
     {
@@ -314,10 +324,12 @@ class API
      *
      * @see marketBuy()
      *
-     * @param $symbol string the currency symbol
+     * @param $symbol   string the currency symbol
      * @param $quantity string the quantity required
-     * @param $flags array addtional options for order type
+     * @param $flags    array addtional options for order type
+     *
      * @return array with error message or the order details
+     * @throws \Exception
      */
     public function marketBuyTest(string $symbol, $quantity, array $flags = [])
     {
@@ -330,10 +342,12 @@ class API
      * $quantity = 1;
      * $order = $api->marketSell("BNBBTC", $quantity);
      *
-     * @param $symbol string the currency symbol
+     * @param $symbol   string the currency symbol
      * @param $quantity string the quantity required
-     * @param $flags array addtional options for order type
+     * @param $flags    array addtional options for order type
+     *
      * @return array with error message or the order details
+     * @throws \Exception
      */
     public function marketSell(string $symbol, $quantity, array $flags = [])
     {
@@ -345,10 +359,12 @@ class API
      *
      * @see marketSellTest()
      *
-     * @param $symbol string the currency symbol
+     * @param $symbol   string the currency symbol
      * @param $quantity string the quantity required
-     * @param $flags array addtional options for order type
+     * @param $flags    array addtional options for order type
+     *
      * @return array with error message or the order details
+     * @throws \Exception
      */
     public function marketSellTest(string $symbol, $quantity, array $flags = [])
     {
@@ -719,7 +735,7 @@ class API
     {
         if (isset($symbol) === false || is_string($symbol) === false) {
             // WPCS: XSS OK.
-            echo "asset: expected bool false, " . gettype($symbol) . " given" . PHP_EOL;
+            throw new \Exception("asset: expected bool false, " . gettype($symbol) . " given");
         }
         $json = $this->httpRequest("v1/depth", "GET", [
             "symbol" => $symbol,
@@ -749,11 +765,13 @@ class API
         $account = $this->httpRequest("v3/account", "GET", [], true);
 
         if (is_array($account) === false) {
-            echo "Error: unable to fetch your account details" . PHP_EOL;
+            // todo Isn't there API error in such case?
+            throw new \Exception("Error: unable to fetch your account details");
         }
 
         if (isset($account['balances']) === false) {
-            echo "Error: your balances were empty or unset" . PHP_EOL;
+            // todo Isn't there API error in such case?
+            throw new \Exception("Error: your balances were empty or unset");
         }
 
         return $this->balanceData($account, $priceData);
@@ -765,6 +783,7 @@ class API
      * $balances = $api->getProxyUriString();
      *
      * @return string uri
+     * @throws \Exception
      */
     public function getProxyUriString()
     {
@@ -781,24 +800,14 @@ class API
 
         if (in_array($uri, $supportedProtocols) === false) {
             // WPCS: XSS OK.
-            echo "Unknown proxy protocol '" . $this->proxyConf['proto'] . "', supported protocols are " . implode(", ", $supportedProtocols) . PHP_EOL;
+            throw new \Exception("Unknown proxy protocol '" . $this->proxyConf['proto'] . "', supported protocols are " . implode(", ", $supportedProtocols));
         }
 
         $uri .= "://";
         $uri .= isset($this->proxyConf['address']) ? $this->proxyConf['address'] : "localhost";
 
-        if (isset($this->proxyConf['address']) === false) {
-            // WPCS: XSS OK.
-            echo "warning: proxy address not set defaulting to localhost" . PHP_EOL;
-        }
-
         $uri .= ":";
         $uri .= isset($this->proxyConf['port']) ? $this->proxyConf['port'] : "1080";
-
-        if (isset($this->proxyConf['address']) === false) {
-            // WPCS: XSS OK.
-            echo "warning: proxy port not set defaulting to 1080" . PHP_EOL;
-        }
 
         return $uri;
     }
@@ -934,17 +943,12 @@ class API
         $output = curl_exec($curl);
         // Check if any error occurred
         if (curl_errno($curl) > 0) {
-            // should always output error, not only on httpdebug
-            // not outputing errors, hides it from users and ends up with tickets on github
-            echo 'Curl error: ' . curl_error($curl) . "\n";
-            return [];
+            throw new \Exception('Curl error: ' . curl_error($curl));
         }
         curl_close($curl);
         $json = json_decode($output, true);
-        if (isset($json['msg'])) {
-            // should always output error, not only on httpdebug
-            // not outputing errors, hides it from users and ends up with tickets on github
-            echo "signedRequest error: {$output}" . PHP_EOL;
+        if (isset($json['code']) && isset($json['msg'])) {
+            throw new \Exception('API error: ' . $json['code'] . ': ' . $json['msg'], $json['code']);
         }
         $this->transfered += strlen($output);
         $this->requestCount++;
@@ -989,12 +993,12 @@ class API
 
         if (is_numeric($quantity) === false) {
             // WPCS: XSS OK.
-            echo "warning: quantity expected numeric got " . gettype($quantity) . PHP_EOL;
+            throw new \Exception("Quantity expected numeric got " . gettype($quantity));
         }
 
         if (is_string($price) === false) {
             // WPCS: XSS OK.
-            echo "warning: price expected string got " . gettype($price) . PHP_EOL;
+            throw new \Exception("Price expected string got " . gettype($price));
         }
 
         if ($type === "LIMIT" || $type === "STOP_LOSS_LIMIT" || $type === "TAKE_PROFIT_LIMIT") {
@@ -1062,8 +1066,7 @@ class API
         }
 
         if (count($response) === 0) {
-            echo "warning: v1/klines returned empty array, usually a blip in the connection or server" . PHP_EOL;
-            return [];
+            throw new \Exception("v1/klines returned empty array, usually a blip in the connection or server");
         }
 
         $ticks = $this->chartData($symbol, $interval, $response);
@@ -1088,13 +1091,6 @@ class API
 
         if (is_array($priceData)) {
             $btc_value = $btc_total = 0.00;
-        }
-
-        if (empty($array) || empty($array['balances'])) {
-            // WPCS: XSS OK.
-            echo "balanceData error: Please make sure your system time is synchronized: call \$api->useServerTime() before this function" . PHP_EOL;
-            echo "ERROR: Invalid request. Please double check your API keys and permissions." . PHP_EOL;
-            return [];
         }
 
         foreach ($array['balances'] as $obj) {
@@ -1654,9 +1650,11 @@ class API
      * echo "bid: {$bid}".PHP_EOL;
      * });
      *
-     * @param $symbol string optional array of symbols
+     * @param $symbol   string optional array of symbols
      * @param $callback callable closure
+     *
      * @return null
+     * @throws \Exception
      */
     public function depthCache($symbols, callable $callback)
     {
@@ -1707,13 +1705,13 @@ class API
                 });
                 $ws->on('close', function ($code = null, $reason = null) use ($symbol, $loop) {
                     // WPCS: XSS OK.
-                    echo "depthCache({$symbol}) WebSocket Connection closed! ({$code} - {$reason})" . PHP_EOL;
                     $loop->stop();
+                    throw new \Exception("depthCache({$symbol}) WebSocket Connection closed! ({$code} - {$reason})");
                 });
             }, function ($e) use ($loop, $symbol) {
                 // WPCS: XSS OK.
-                echo "depthCache({$symbol})) Could not connect: {$e->getMessage()}" . PHP_EOL;
                 $loop->stop();
+                throw new \Exception("depthCache({$symbol})) Could not connect: {$e->getMessage()}");
             });
             $this->depth($symbol);
             foreach ($this->depthQueue[$symbol] as $data) {
@@ -1783,13 +1781,13 @@ class API
                 });
                 $ws->on('close', function ($code = null, $reason = null) use ($symbol, $loop) {
                     // WPCS: XSS OK.
-                    echo "trades({$symbol}) WebSocket Connection closed! ({$code} - {$reason})" . PHP_EOL;
                     $loop->stop();
+                    throw new \Exception("trades({$symbol}) WebSocket Connection closed! ({$code} - {$reason})");
                 });
             }, function ($e) use ($loop, $symbol) {
                 // WPCS: XSS OK.
-                echo "trades({$symbol}) Could not connect: {$e->getMessage()}" . PHP_EOL;
                 $loop->stop();
+                throw new \Exception("trades({$symbol}) Could not connect: {$e->getMessage()}");
             });
         }
         $loop->run();
@@ -1833,11 +1831,11 @@ class API
             });
             $ws->on('close', function ($code = null, $reason = null) {
                 // WPCS: XSS OK.
-                echo "ticker: WebSocket Connection closed! ({$code} - {$reason})" . PHP_EOL;
+                throw new \Exception("ticker: WebSocket Connection closed! ({$code} - {$reason})");
             });
         }, function ($e) {
             // WPCS: XSS OK.
-            echo "ticker: Could not connect: {$e->getMessage()}" . PHP_EOL;
+            throw new \Exception("ticker: Could not connect: {$e->getMessage()}");
         });
         // @codeCoverageIgnoreEnd
     }
@@ -1905,13 +1903,13 @@ class API
                 });
                 $ws->on('close', function ($code = null, $reason = null) use ($symbol, $loop, $interval) {
                     // WPCS: XSS OK.
-                    echo "chart({$symbol},{$interval}) WebSocket Connection closed! ({$code} - {$reason})" . PHP_EOL;
                     $loop->stop();
+                    throw new \Exception("chart({$symbol},{$interval}) WebSocket Connection closed! ({$code} - {$reason})");
                 });
             }, function ($e) use ($loop, $symbol, $interval) {
                 // WPCS: XSS OK.
-                echo "chart({$symbol},{$interval})) Could not connect: {$e->getMessage()}" . PHP_EOL;
                 $loop->stop();
+                throw new \Exception("chart({$symbol},{$interval})) Could not connect: {$e->getMessage()}");
             });
             $this->candlesticks($symbol, $interval);
             foreach ($this->chartQueue[$symbol][$interval] as $json) {
@@ -1965,13 +1963,13 @@ class API
                 });
                 $ws->on('close', function ($code = null, $reason = null) use ($symbol, $loop, $interval) {
                     // WPCS: XSS OK.
-                    echo "kline({$symbol},{$interval}) WebSocket Connection closed! ({$code} - {$reason})" . PHP_EOL;
                     $loop->stop();
+                    throw new \Exception("kline({$symbol},{$interval}) WebSocket Connection closed! ({$code} - {$reason})");
                 });
             }, function ($e) use ($loop, $symbol, $interval) {
                 // WPCS: XSS OK.
-                echo "kline({$symbol},{$interval})) Could not connect: {$e->getMessage()}" . PHP_EOL;
                 $loop->stop();
+                throw new \Exception("kline({$symbol},{$interval})) Could not connect: {$e->getMessage()}");
             });
         }
         $loop->run();
@@ -2077,11 +2075,11 @@ class API
             });
             $ws->on('close', function ($code = null, $reason = null) {
                 // WPCS: XSS OK.
-                echo "userData: WebSocket Connection closed! ({$code} - {$reason})" . PHP_EOL;
+                throw new \Exception("userData: WebSocket Connection closed! ({$code} - {$reason})");
             });
         }, function ($e) {
             // WPCS: XSS OK.
-            echo "userData: Could not connect: {$e->getMessage()}" . PHP_EOL;
+            throw new \Exception("userData: Could not connect: {$e->getMessage()}");
         });
         // @codeCoverageIgnoreEnd
     }
@@ -2128,11 +2126,11 @@ class API
             });
             $ws->on('close', function ($code = null, $reason = null) {
                 // WPCS: XSS OK.
-                echo "miniticker: WebSocket Connection closed! ({$code} - {$reason})" . PHP_EOL;
+                throw new \Exception("miniticker: WebSocket Connection closed! ({$code} - {$reason})");
             });
         }, function ($e) {
             // WPCS: XSS OK.
-            echo "miniticker: Could not connect: {$e->getMessage()}" . PHP_EOL;
+            throw new \Exception("miniticker: Could not connect: {$e->getMessage()}");
         });
         // @codeCoverageIgnoreEnd
     }
@@ -2141,13 +2139,15 @@ class API
      * Due to ongoing issues with out of date wamp CA bundles
      * This function downloads ca bundle for curl website
      * and uses it as part of the curl options
+     *
+     * @throws \Exception
      */
     private function downloadCurlCaBundle()
     {
         $output_filename = getcwd() . "/ca.pem";
 
         if (is_writable(getcwd()) === false) {
-            die(getcwd() . " folder is not writeable, plese check your permissions");
+            throw new \Exception(getcwd() . " folder is not writeable, plese check your permissions");
         }
 
         $host = "https://curl.haxx.se/ca/cacert.pem";
@@ -2171,15 +2171,13 @@ class API
         curl_close($curl);
 
         if ($result === false) {
-            echo "Unable to to download the CA bundle $host" . PHP_EOL;
-            return;
+            throw new \Exception("Unable to to download the CA bundle $host");
         }
 
         $fp = fopen($output_filename, 'w');
 
         if ($fp === false) {
-            echo "Unable to write $output_filename, please check permissions on folder" . PHP_EOL;
-            return;
+            throw new \Exception("Unable to write $output_filename, please check permissions on folder");
         }
 
         fwrite($fp, $result);
